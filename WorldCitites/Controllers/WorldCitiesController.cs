@@ -56,21 +56,18 @@ namespace WorldCitites.Controllers
             return CreatedAtAction("GetWorldCity", new { id = worldCity.CityId }, worldCity);
         }
 
-        // POST as PUT: api/WorldCities/{id}/update
+        // POST as PUT(or PATCH): api/WorldCities/{id}/update, allows partial updates via query parameters
         [HttpPost("{id}/update")]
         [Route("{id}/update")]
-        public async Task<IActionResult> UpdateWorldCity(int id, WorldCityUpdateDto worldCityDto)
+        public async Task<IActionResult> UpdateWorldCity(int id, [FromQuery] WorldCityUpdateDto worldCityDto)
         {
             var worldCity = await _context.WorldCities.FindAsync(id);
 
-            if (worldCity == null)
-            {
-                return NotFound();
-            }
+            if (worldCity == null) return NotFound();
 
-            worldCity.City = worldCityDto.City;
-            worldCity.Country = worldCityDto.Country;
-            worldCity.Population = worldCityDto.Population;
+            if (!string.IsNullOrWhiteSpace(worldCityDto.City)) worldCity.City = worldCityDto.City;
+            if (!string.IsNullOrWhiteSpace(worldCityDto.Country)) worldCity.Country = worldCityDto.Country;
+            if (worldCityDto.Population.HasValue) worldCity.Population = worldCityDto.Population.Value;
 
             try
             {

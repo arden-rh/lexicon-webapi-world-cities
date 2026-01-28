@@ -1,14 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using WorldCitites.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<WorldCitiesContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'WebAppWithEFCore1Context' not found.")));
 
+// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.ConfigureHttpJsonOptions(options => {
-    // Prevents the JSON serializer from trying to be 
-    // clever with number-to-string conversions
+    // Prevents the JSON serializer from accepting both int and string for int properties
     options.SerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict;
 });
 

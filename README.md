@@ -77,26 +77,31 @@ Once the application is running, navigate to the root URL (`https://localhost:<p
 
 ### Get All Cities
 
-* GET /api/WorldCities
+GET /api/WorldCities
 
 Returns all cities ordered by population (descending).
 
-**Response:** Array of city objects
+**Response:**
+
+- `200 OK` with a list of city objects
 
 ### Get City by ID
 
-* GET /api/WorldCities/id
+GET /api/WorldCities/id
 
 Returns the city with the specified ID.
 
 **Parameters:**
 - `id` (integer): City ID
 
-**Response:** Single city object or `404 Not Found`
+**Response:**
+
+- `200 OK` with the city object
+- `404 Not Found` if the city does not exist
 
 ### Create City
 
-* POST /api/WorldCities
+POST /api/WorldCities
 
 ```json
 { 
@@ -113,12 +118,12 @@ Returns the city with the specified ID.
 
 ### Update City
 
-* POST /api/WorldCities/id/update
+POST /api/WorldCities/id/update
 
 ```json
 {
-  "name": "string",
-  "country": "string",
+  "name": "new name",
+  "country": "new country",
   "population": 0
 }
 ```
@@ -128,13 +133,13 @@ Returns the city with the specified ID.
 
 **Response:**
 
-- `200 OK` with the updated city object
+- `204 No Content` if the update was successful
 - `400 Bad Request` if the data is invalid
 - `404 Not Found` if the city does not exist
 
 ### Delete City
 
-* POST /api/WorldCities/id/delete
+POST /api/WorldCities/id/delete
 
 **Parameters:**
 - `id` (integer): City ID

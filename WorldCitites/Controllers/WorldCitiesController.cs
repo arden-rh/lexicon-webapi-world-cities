@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.EntityFrameworkCore;
+using WorldCitites.Data;
+using WorldCitites.Models;
 
 namespace WorldCitites.Controllers
 {
@@ -8,66 +9,108 @@ namespace WorldCitites.Controllers
     [ApiController]
     public class WorldCitiesController : ControllerBase
     {
-        private static readonly List<WorldCity> SampleCities = new List<WorldCity>
+
+        private readonly WorldCitiesContext _context;
+
+        public WorldCitiesController(WorldCitiesContext context)
         {
-            new WorldCity { CityId = 1, City = "New York", Country = "USA", Population = 8419600 },
-            new WorldCity { CityId = 2, City = "Tokyo", Country = "Japan", Population = 13929286 },
-            new WorldCity { CityId = 3, City = "London", Country = "UK", Population = 8982000 },
-        };
+            _context = context;
+        }
 
-
-        // GET: api/<WorldCitiesController>
+        // GET: api/WorldCities
         [HttpGet]
-        public IEnumerable<WorldCity> Get()
+        public async Task<ActionResult<IEnumerable<WorldCity>>> GetWorldCities()
         {
-            return SampleCities;
+            return await _context.WorldCities
+                .OrderByDescending(c  => c.Population)
+                .ToListAsync();
         }
 
-        // GET api/<WorldCitiesController>/5
+        // GET: api/WorldCities/{id}
         [HttpGet("{id}")]
-        public ActionResult<WorldCity> Get([FromRoute] int id)
+        public async Task<ActionResult<WorldCity>> GetWorldCity(int id)
         {
-            var city = SampleCities.FirstOrDefault(c => c.CityId == id);
+            var worldCity = await _context.WorldCities.FindAsync(id);
 
-            return city;
+            if (worldCity == null)
+            {
+                return NotFound();
+            }
+
+            return worldCity;
         }
-
-        // POST api/<WorldCitiesController>
+        
+        // POST: api/WorldCities
         [HttpPost]
-        public ActionResult<WorldCity> Post([FromBody] WorldCity newCity)
+        public async Task<ActionResult<WorldCity>> PostWorldCity(WorldCityCreateDto worldCityDto)
         {
-            newCity.CityId = SampleCities.Max(c => c.CityId) + 1;
-            SampleCities.Add(newCity);
-            return CreatedAtAction(nameof(Get), new { id = newCity.CityId }, newCity);
+            var worldCity = new WorldCity
+            {
+                City = worldCityDto.City,
+                Country = worldCityDto.Country,
+                Population = worldCityDto.Population
+            };
+
+            _context.WorldCities.Add(worldCity);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction("GetWorldCity", new { id = worldCity.CityId }, worldCity);
         }
 
-        // PUT api/<WorldCitiesController>/5
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] WorldCity updatedCity)
+        // POST as PUT: api/WorldCities/{id}/update
+        [HttpPost("{id}/update")]
+        [Route("{id}/update")]
+        public async Task<IActionResult> UpdateWorldCity(int id, WorldCityUpdateDto worldCityDto)
         {
-            var existingCity = SampleCities.FirstOrDefault(c => c.CityId == id);
-            if (existingCity == null) 
+            var worldCity = await _context.WorldCities.FindAsync(id);
+
+            if (worldCity == null)
             {
-                return NotFound($"City with ID {id} not found.");
+                return NotFound();
             }
-            existingCity.City = updatedCity.City;
-            existingCity.Country = updatedCity.Country;
-            existingCity.Population = updatedCity.Population;
+
+            worldCity.City = worldCityDto.City;
+            worldCity.Country = worldCityDto.Country;
+            worldCity.Population = worldCityDto.Population;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!WorldCityExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return NoContent();
         }
 
-        // DELETE api/<WorldCitiesController>/5
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        // POST as DELETE: api/WorldCities/{id}/delete
+        [HttpPost("{id}/delete")]
+        [Route("{id}/delete")]
+        public async Task<IActionResult> DeleteWorldCity(int id)
         {
-            var existingCity = SampleCities.FirstOrDefault(c => c.CityId == id);
-            if (existingCity == null) 
+            var worldCity = await _context.WorldCities.FindAsync(id);
+            if (worldCity == null)
             {
-                return NotFound($"City with ID {id} not found.");
+                return NotFound();
             }
-            SampleCities.Remove(existingCity);
+
+            _context.WorldCities.Remove(worldCity);
+            await _context.SaveChangesAsync();
+
             return NoContent();
+        }
+
+        private bool WorldCityExists(int id)
+        {
+            return _context.WorldCities.Any(e => e.CityId == id);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WorldCitites.Models;
+
 namespace WorldCitites.Data
 {
     public class WorldCitiesContext : DbContext

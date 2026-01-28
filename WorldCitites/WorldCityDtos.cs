@@ -14,7 +14,7 @@ namespace WorldCitites
         public int Population { get; set; }
     }
 
-    // testing the pattern for future projects that is bigger
+    // Testing the pattern for future projects that is bigger
     public class WorldCityCreateDto : WorldCityBaseDto { }
     public class WorldCityUpdateDto : WorldCityBaseDto { }
 }

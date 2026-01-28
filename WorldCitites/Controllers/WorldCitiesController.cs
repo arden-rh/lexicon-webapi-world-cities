@@ -9,7 +9,6 @@ namespace WorldCitites.Controllers
     [ApiController]
     public class WorldCitiesController : ControllerBase
     {
-
         private readonly WorldCitiesContext _context;
 
         public WorldCitiesController(WorldCitiesContext context)
@@ -53,6 +52,7 @@ namespace WorldCitites.Controllers
 
             _context.WorldCities.Add(worldCity);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction("GetWorldCity", new { id = worldCity.CityId }, worldCity);
         }
 

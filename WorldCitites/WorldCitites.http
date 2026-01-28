@@ -1,6 +1,6 @@
 @WorldCitites_HostAddress = http://localhost:5206
 
-GET {{WorldCitites_HostAddress}}/worldcitites/
+GET {{WorldCitites_HostAddress}}/api/worldcities/
 Accept: application/json
 
 ###
